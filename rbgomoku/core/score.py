@@ -92,7 +92,7 @@ class Score:
                 if (end < len(line) and line[end] == Piece.NONE):  # end is the last position + 1
                     outmost += 1
                 self.value += SCORE_POINT[i] * outmost * score_factor
-                return
+                return self.value
             elif i == ScoreEnum.FOUR:
                 pattern = '(x{3}\.x|x\.x{3})|(x{2}\.x{2})'
                 match = re.search(pattern, line)
@@ -104,8 +104,8 @@ class Score:
                 if (end < len(line) and line[end] == Piece.NONE):  # end is the last position + 1
                     outmost += 1
                 self.value += SCORE_POINT[i] * outmost * score_factor / 2
-                return
-        return
+                return self.value
+        return 1
 
     def _search_winner_line(self, piece, board_space):
         """ Search has victory in line
@@ -120,14 +120,9 @@ class Score:
                     otherwise is False
         """
 
-        start_col = 0 if (board_space.col - ScoreEnum.FIVE) < 0 else (board_space.col - ScoreEnum.FIVE)
-        size = len(self._table)
-        end_col = size if (board_space.col + ScoreEnum.FIVE + 1) > size \
-            else (board_space.col + ScoreEnum.FIVE)
-
-        sequence = self._table[board_space.row, start_col:end_col]
-        self.heuristic(piece, sequence)
-        return math.fabs(self.value) >= SCORE_POINT[ScoreEnum.FIVE]
+        sequence = utils.get_line_by_position(self._table, board_space)
+        value = self.heuristic(piece, sequence)
+        return math.fabs(value) >= SCORE_POINT[ScoreEnum.FIVE]
 
     def _search_winner_column(self, piece, board_space):
         """ Search has victory in line
@@ -141,13 +136,9 @@ class Score:
         :return: if has a victory in current row, True
                     otherwise is False
         """
-        start_row = 0 if (board_space.row - ScoreEnum.FIVE) < 0 else (board_space.row - ScoreEnum.FIVE)
-        size = len(self._table)
-        end_row = size if (board_space.row + ScoreEnum.FIVE + 1) > size \
-            else (board_space.row + ScoreEnum.FIVE)
-        sequence = self._table[start_row:end_row, board_space.col]
-        self.heuristic(piece, sequence)
-        return math.fabs(self.value) >= SCORE_POINT[ScoreEnum.FIVE]
+        sequence = utils.get_column_by_position(self._table, board_space)
+        value = self.heuristic(piece, sequence)
+        return math.fabs(value) >= SCORE_POINT[ScoreEnum.FIVE]
 
     def _search_winner_diagonal(self, piece, board_space):
         """ Search has victory by diagonal
@@ -161,14 +152,13 @@ class Score:
         :return: if has a victory in current diagonal, True
                     otherwise is False
         """
-        offset = board_space.col - board_space.row
-        diagonal = utils.get_diagonal(self._table, offset)
+        diagonal = utils.get_diagonal_by_position(self._table, board_space)
 
         if len(diagonal) < ScoreEnum.FIVE:
             return False
 
-        self.heuristic(piece, diagonal)
-        return math.fabs(self.value) >= SCORE_POINT[ScoreEnum.FIVE]
+        value = self.heuristic(piece, diagonal)
+        return math.fabs(value) >= SCORE_POINT[ScoreEnum.FIVE]
 
     def _search_winner_opp_diag(self, piece, board_space):
         """ Search has victory by diagonal
@@ -182,14 +172,10 @@ class Score:
         :return: if has a victory in current diagonal, True
                     otherwise is False
         """
-        size = len(self._table)
-        new_col = board_space.row
-        new_row = (size - 1) - board_space.col
-        offset = new_row - new_col
-        opp_diagonal = utils.get_opposite_diagonal(self._table, offset)
+        opp_diagonal = utils.get_opp_diagonal_by_position(self._table, board_space)
 
         if len(opp_diagonal) < ScoreEnum.FIVE:
             return False
 
-        self.heuristic(piece, opp_diagonal)
-        return math.fabs(self.value) >= SCORE_POINT[ScoreEnum.FIVE]
+        value = self.heuristic(piece, opp_diagonal)
+        return math.fabs(value) >= SCORE_POINT[ScoreEnum.FIVE]

@@ -1,5 +1,7 @@
 import numpy as np
 
+MAJOR_SEQUENCE = 5
+
 
 def get_diagonal(table, offset):
     """ Get diagonal from table
@@ -38,3 +40,29 @@ def get_opposite_diagonal(table, offset):
     inverted_opp_diagonal = np.diag(transposed, k=-offset).tolist()
     opposite_diagonal = inverted_opp_diagonal[::-1]
     return opposite_diagonal
+
+
+def get_diagonal_by_position(table, board_space):
+    offset = board_space.col - board_space.row
+    return get_diagonal(table, offset)
+
+def get_line_by_position(table, board_space):
+        start_col = 0 if (board_space.col - MAJOR_SEQUENCE) < 0 else (board_space.col - MAJOR_SEQUENCE)
+        size = len(table)
+        end_col = size if (board_space.col + MAJOR_SEQUENCE + 1) > size \
+            else (board_space.col + MAJOR_SEQUENCE)
+        return table[board_space.row, start_col:end_col]
+
+def get_column_by_position(table, board_space):
+    start_row = 0 if (board_space.row - MAJOR_SEQUENCE) < 0 else (board_space.row - MAJOR_SEQUENCE)
+    size = len(table)
+    end_row = size if (board_space.row + MAJOR_SEQUENCE + 1) > size \
+        else (board_space.row + MAJOR_SEQUENCE)
+    return table[start_row:end_row, board_space.col]
+
+def get_opp_diagonal_by_position(table, board_space):
+        size = len(table)
+        new_col = board_space.row
+        new_row = (size - 1) - board_space.col
+        offset = new_row - new_col
+        return get_opposite_diagonal(table, offset)
