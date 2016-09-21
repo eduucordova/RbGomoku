@@ -22,7 +22,7 @@ class HumanPlayer(AIPlayer):
     """
     def __init__(self, board, piece, first=True):
         super(HumanPlayer, self).__init__(board, piece)
-        self.first = not first
+        self.first_move = not first
 
     def play(self, square=None):
         """ Move the piece of player
@@ -38,7 +38,7 @@ class HumanPlayer(AIPlayer):
         return self._board.take_up_space(self.my_piece, square)
 
     def __repr__(self):
-        player_number = int(self.first) + 1
+        player_number = int(self.first_move) + 1
         return 'Player {}'.format(player_number)
 
 
